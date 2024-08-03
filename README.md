@@ -1,10 +1,12 @@
 # pifex-sw
 
-Software Modules and Examples for the PiFex
 
 # Overview
 
-- `notebooks`: Jupyter Notebooks that demonstrate how to user various peripherals on the Pi for hardware reverse engineering
-- `scripts`: Assorted helpful scripts for hardware hacking, PiFex setup
-- `services`: `systemd` services to launch various things on boot (Jupyter, OLED, etc)
+Software Modules and Examples for the PiFex
 
+## Contents
+
+- `notebooks` Contains example jupyter notebooks for the PiFex
+- `scripts` Contains basic setup scripts for the PiFex
+- `targets` Contains config files / scripts for example targets used in blog posts (coming soon!)

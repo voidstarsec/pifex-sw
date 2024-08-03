@@ -1,0 +1,11 @@
+[Unit]
+Description=OLED Info Startup Script
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/pifex/pifex-sw/scripts/oled/
+ExecStart=/home/pi/pifex/pifex-sw/scripts/oled/hello-world.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

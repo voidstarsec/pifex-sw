@@ -1,0 +1,11 @@
+[Unit]
+Description=Jupyter Notebook Startup
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/pifex/pifex-sw/notebooks/
+ExecStart=/home/pi/pifex/pifex-sw/services/start_jupyter.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

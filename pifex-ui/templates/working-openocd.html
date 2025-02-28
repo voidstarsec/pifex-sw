@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive Terminal with File Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <style>
+        body {
+            background-color: #212529;
+            color: #f8f9fa;
+        }
+        .terminal {
+            background-color: #1e1e1e;
+            color: #c9d1d9;
+            padding: 10px;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .terminal-input {
+            background-color: #2e2e2e;
+            color: #f8f9fa;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .terminal-input:focus {
+            outline: none;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">Interactive Terminal with File Search</h1>
+
+        <!-- File Search -->
+        <div class="mb-4">
+            <label for="file-search" class="form-label">Search for Files:</label>
+            <input id="file-search" class="form-control" placeholder="Type to search for files...">
+        </div>
+
+        <!-- Selected Files -->
+        <div id="file-list" class="mb-4">
+            <h5>Selected Files:</h5>
+        </div>
+
+        <!-- Launch OpenOCD -->
+        <button id="launch-openocd" class="btn btn-primary mb-4">Launch OpenOCD</button>
+
+        <!-- Output Display -->
+        <div id="openocd-output" class="terminal"></div>
+
+        <!-- Terminals -->
+        <h2>Telnet Terminal</h2>
+        <div id="telnet-terminal" class="terminal"></div>
+        <input id="telnet-input" class="terminal-input" type="text" placeholder="Type Telnet command here...">
+
+        <hr>
+
+        <h2>GDB Terminal</h2>
+        <div id="gdb-terminal" class="terminal"></div>
+        <button id="start-gdb" class="btn btn-success mb-3">Start GDB</button>
+        <button id="stop-gdb" class="btn btn-danger mb-3">Stop GDB</button>
+        <input id="gdb-input" class="terminal-input" type="text" placeholder="Type GDB command here...">
+    </div>
+    <script>
+        const socket = io();
+
+        // Telnet Handlers
+        const telnetTerminal = document.getElementById('telnet-terminal');
+        const telnetInput = document.getElementById('telnet-input');
+
+        telnetInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const command = telnetInput.value.trim();
+                if (command) {
+                    socket.emit('command_telnet', { command });
+                    telnetTerminal.textContent += '> ' + command + '\n';
+                    telnetInput.value = '';
+                }
+            }
+        });
+
+        socket.on('telnet_output', (data) => {
+            telnetTerminal.textContent += data.data + '\n';
+            telnetTerminal.scrollTop = telnetTerminal.scrollHeight;
+        });
+
+        // GDB Handlers
+        const gdbTerminal = document.getElementById('gdb-terminal');
+        const gdbInput = document.getElementById('gdb-input');
+        const startGdbButton = document.getElementById('start-gdb');
+        const stopGdbButton = document.getElementById('stop-gdb');
+
+        gdbInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const command = gdbInput.value.trim();
+                if (command) {
+                    socket.emit('command_gdb', { command });
+                    gdbTerminal.textContent += '(gdb) ' + command + '\n';
+                    gdbInput.value = '';
+                }
+            }
+        });
+
+        startGdbButton.addEventListener('click', () => {
+            socket.emit('start_gdb');
+        });
+
+        stopGdbButton.addEventListener('click', () => {
+            socket.emit('stop_gdb');
+        });
+
+        socket.on('gdb_output', (data) => {
+            gdbTerminal.textContent += data.data + '\n';
+            gdbTerminal.scrollTop = gdbTerminal.scrollHeight;
+        });
+    </script>
+</body>
+</html>

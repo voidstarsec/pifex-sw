@@ -1,3 +1,4 @@
 #!/bin/bash
+source /home/pi/pifex-env/bin/activate
 cd /home/pi/pifex/pifex-sw/notebooks/
-/home/pi/.local/bin/jupyter-lab --ip=0.0.0.0 
+jupyter-lab --ip=0.0.0.0 

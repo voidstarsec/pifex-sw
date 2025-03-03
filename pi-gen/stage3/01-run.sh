@@ -11,6 +11,7 @@ cp files/pifex/pifex-sw/services/oled.service "${ROOTFS_DIR}/lib/systemd/system/
 cp files/pifex/pifex-sw/services/jupyter.service "${ROOTFS_DIR}/lib/systemd/system/"
 cp files/pifex/pifex-sw/services/openocd.service "${ROOTFS_DIR}/lib/systemd/system/"
 cp files/pifex/pifex-sw/services/gadgets.service "${ROOTFS_DIR}/lib/systemd/system/"
+cp "${ROOTFS_DIR}/lib/systemd/system/serial-getty@.service" "${ROOTFS_DIR}/lib/systemd/system/serial-getty@ttyGS0.service"
 
 # Install the necessary python packages and dependencies
 # TODO: Enable jupter service and oled service and pifex-ui service from here as well
@@ -37,5 +38,6 @@ on_chroot <<- EOF
 	systemctl enable jupyter.service
 	systemctl enable openocd.service
 	systemctl enable gadgets.service
+	systemctl enable serial-getty@ttyGS0.service
 
 EOF

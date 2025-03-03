@@ -16,7 +16,7 @@ HOSTPREFIX="02"     # hex, two digits only
 DEVICEPREFIX="06"   # hex, two digits only
 MANUFACTURER="nobody"
 PRODUCT='nothing'
-INCLUDEUART=0 # set to 1 if a serial gadget is needed for troubleshooting
+INCLUDEUART=1 # set to 1 if a serial gadget is needed for troubleshooting
 #
 
 # calculate MAC addresses

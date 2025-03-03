@@ -35,3 +35,5 @@ liburjtag-dev
 adb
 python3-pip
 ent
+telnet
+nmap

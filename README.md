@@ -6,9 +6,9 @@ Software modules and examples for the PiFex
 
 This repository contains multiple tools and utilities that help enable a Raspberry Pi as a generic hardware hacking tool. See the following blog posts for more usage information and instructions:
 
-- [Brushing Up on Hardware Hacking Part 1 - Configuring the PiFex](TODO)
-- [Brushing Up on Hardware Hacking Part 2 - SPI, UART, Pulseview and Flashrom](TODO)
-- [Brushing Up on Hardware Hacking Part 3 - Hardware Level Debuggers](TODO)
+- [Brushing Up on Hardware Hacking Part 1 - Configuring the PiFex]()
+- [Coming out 3/14 on Brushing Up on Hardware Hacking Part 2 - SPI, UART, Pulseview and Flashrom](TODO)
+- [Coming out on 3/28 Brushing Up on Hardware Hacking Part 3 - Hardware Level Debuggers](TODO)
 - [JTAG Hacking with a Raspberry Pi](https://voidstarsec.com/blog/jtag-pifex)
 
 

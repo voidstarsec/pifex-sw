@@ -191,4 +191,4 @@ def stop_gdb():
         emit('gdb_output', {'data': 'GDB is not running.'})
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True,host="0.0.0.0")
+    socketio.run(app, allow_unsafe_werkzeug=True,debug=True,host="0.0.0.0")

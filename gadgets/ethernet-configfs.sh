@@ -63,5 +63,5 @@ fi
 ls /sys/class/udc > UDC
 
 
-ip a add 192.168.8.1/255.255.255.0 dev usb0
+ip a add 10.0.0.3/255.255.255.0 dev usb0
 ip link set dev usb0 up

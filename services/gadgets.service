@@ -1,0 +1,11 @@
+[Unit]
+Description=GadgetFS Configuration Script
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/pifex/pifex-sw/gadgets/
+ExecStart=/home/pi/pifex/pifex-sw/gadgets/ethernet-configfs.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

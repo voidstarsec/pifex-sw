@@ -24,7 +24,7 @@ This repository contains multiple tools and utilities that help enable a Raspber
 
 # Image Generation
 
-The files included in this repository can be used in conjunction with the [pi-gen]() project to build a clean Raspberry Pi images with all of the services enabled. 
+The files included in this repository can be used in conjunction with the [pi-gen](https://github.com/RPi-Distro/pi-gen) project to build a clean Raspberry Pi images with all of the services enabled.
 
 In order to build an image with `pi-gen` follow these steps:
 

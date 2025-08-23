@@ -1,0 +1,128 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>swd</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h4 id="swd">SWD</h4>
+<p>SWD is a common debugging interface that is used for ARM Cortex targets. As the name implies, SWD only requires one data line and one clock line, but how can we determine which one is which? Before we go down that route, we should understand a little more about how SWD works and what tools can be used to interface with it.</p>
+<p>First off - SWD interfaces with something called a “Debug Access Port” (DAP). The DAP brokers access to various “Access Ports” (APs) which provide functionality including from typical hardware debugging, legacy JTAG cores, and other high performance memory busses. The image below pulled from <a href="https://stm32duinoforum.com/forum/files/pdf/Serial_Wire_Debug.pdf">this document</a> provides a visual representation of how the DAP and APs are architected.</p>
+<figure>
+<img src="https://wrongbaud.github.io/assets/img/xbox-controller/swd_arch.png" alt="swd_arch.png" /><figcaption>swd_arch.png</figcaption>
+</figure>
+<p>Each of these APs consist of 64, 32 bit registers, with one register that is used to identify the type of AP. The function and features of the AP determine how these registers are accessed and utilized. You can find all of the information regarding these transactions for some of the standard APs <a href="https://static.docs.arm.com/ihi0031/c/IHI0031C_debug_interface_as.pdf">here</a>. The ARM interface specification defines two APs by default and they are the JTAG-AP, and the MEM-AP. The MEM-AP also includes a discovery mechanism for components that are attached to it.</p>
+<h5 id="swd-protocol">SWD Protocol</h5>
+<p>SWD was developed as a pseudo-replacement for JTAG. With SWD the pin count was reduced from 4 to 2 and it provides a lot of the same functionality of JTAG. One downside to SWD however is that devices can not be daisy chained together, which JTAG allowed for. The two pins that are used in SWD are below:</p>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pin</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>SWCLK</code></td>
+<td>Clock signal to CPU, determining when data is sampled and sent on <code>SWDIO</code></td>
+</tr>
+<tr class="even">
+<td><code>SWDIO</code></td>
+<td>Bi directional data pin used to transfer data to and from the target CPU</td>
+</tr>
+</tbody>
+</table>
+<p>SWD utilizes a packet based protocol to read and write to registers in the DAP/AP and they consist of the following phases:</p>
+<ol type="1">
+<li>Host to target packet request</li>
+<li>Bus turnaround</li>
+<li>Target to host acknowledgment response</li>
+<li>Data transfer phase</li>
+</ol>
+<p>The packet structure can be seen in the image below:</p>
+<ul>
+<li><a href="img/swd/swd-traffic.png">swd_arch.png</a></li>
+</ul>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Start</td>
+<td>Start bit, value 1</td>
+</tr>
+<tr class="even">
+<td>APnDP</td>
+<td>This bit indicates whether the Debug Port access register or the Access Port access register is to be used.</td>
+</tr>
+<tr class="odd">
+<td>RnW</td>
+<td>Read / Write bit</td>
+</tr>
+<tr class="even">
+<td>A[2:3]</td>
+<td>Address field for the AP or DP address</td>
+</tr>
+<tr class="odd">
+<td>Parity</td>
+<td>Parity bit for all packet requests</td>
+</tr>
+<tr class="even">
+<td>Stop</td>
+<td>Stop bit (always 0)</td>
+</tr>
+<tr class="odd">
+<td>Park</td>
+<td>Line to be driven high during the turnaround period</td>
+</tr>
+<tr class="even">
+<td>ACK[0:2]</td>
+<td>Ack bits from the target back to the host</td>
+</tr>
+<tr class="odd">
+<td>DATA[0:32]</td>
+<td>The actual data frame, which will be either read from the target or written to the target depending on the RnW bit</td>
+</tr>
+<tr class="even">
+<td>Parity</td>
+<td>Final parity bit for the data frame</td>
+</tr>
+</tbody>
+</table>
+<p>After the park bit (from the host to the target) there is a turnaround period, which basically means that the target will now respond on the same line.</p>
+<h4 id="swd-for-reverse-engineers">SWD for Reverse Engineers</h4>
+<ul>
+<li>SWD is implemented with 2 pins, but it is common to see a reset pin grouped with the SWD pins</li>
+<li>Look for headers of 4-5 pins <code>SDA</code>,<code>SCL</code>,<code>RESET</code>,<code>GND</code>,<code>VCC</code></li>
+<li>SWD pins are commonly labeled A13/A14</li>
+</ul>
+</body>
+</html>
+
+{% endblock %}

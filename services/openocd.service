@@ -3,8 +3,8 @@ Description=OLED Info Startup Script
 
 [Service]
 User=pi
-WorkingDirectory=/home/pi/pifex/pifex-sw/pifex-ui/
-ExecStart=/home/pi/pifex/pifex-sw/pifex-ui/run.sh
+WorkingDirectory=/home/pi/pifex/pifex-sw-hhb/pifex-ui/
+ExecStart=/home/pi/pifex/pifex-sw-hhb/pifex-ui/run.sh
 Restart=always
 
 [Install]

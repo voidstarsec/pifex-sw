@@ -1,0 +1,91 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>flashrom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h4 id="what">What</h4>
+<p>Flashrom is a utility used to extract various flash devices. Multiple programmers and devices are supported and the addition of additional EEPROMs is relatively straightforward!</p>
+<hr />
+<h4 id="why">Why</h4>
+<p>We will use flashrom throughout this course to reflash and read out SPI flash chips for the following targets:</p>
+<ol type="1">
+<li>Travel Router</li>
+<li>Game Cabinet</li>
+</ol>
+<hr />
+<h3 id="example-usage">Example Usage:</h3>
+<pre><code>sudo flashrom -p linux_spi:dev=/dev/spidev0.0,spispeed=8000 -w router.bin</code></pre>
+<p>The parameters can be understood as follows:</p>
+<ul>
+<li><code>-p</code> Programmer - this is the backend that is being used to actually read data off of the device. For our case, since we are using the raspberry pi, the programmer is the Linux SPI controller!</li>
+<li><code>dev</code> Path to the device that the programmer is going to use</li>
+<li><code>spispeed</code> This sets the speed of the clock to be used, when doing reads in circuit sometimes lower clock speeds are required due to signal reflection and noise! |</li>
+<li><code>-w / -r</code> This defines whether we are doing a read or write operation, this is followed by the relevant filename to use |</li>
+</ul>
+<hr />
+<h4 id="re-tips">RE Tips</h4>
+<ul>
+<li>When reading a flash chip in circuit, make sure that nothing else is attempting to try to talk to the chip! You can do this be checking with a Logic Analyzer</li>
+<li>If readouts are not working or the chip is not detected, try lowering the clock speed</li>
+<li>The <code>CS</code> pin can sometimes be lifted off of the target in order to prevent other devices from trying to communicate with it</li>
+<li>Using flashrom <code>layout</code> files can be useful when reflashing as they allow for smaller regions to be reflashed and this takes much less time!</li>
+</ul>
+<hr />
+<h4 id="common-pinouts">Common Pinouts</h4>
+<p><img src="https://wrongbaud.github.io/assets/img/EEPROM.png" /></p>
+<hr />
+<h4 id="manual-page-for-flashrom">Manual Page for Flashrom</h4>
+<pre><code>flashrom  on Linux 4.19.118-v7l+ (armv7l)
+flashrom is free software, get the source code at https://flashrom.org
+
+Please note that the command line interface for flashrom has changed between
+0.9.5 and 0.9.6 and will change again before flashrom 1.0.
+
+Usage: flashrom [-h|-R|-L|-p &lt;programmername&gt;[:&lt;parameters&gt;] [-c &lt;chipname&gt;]
+[-E|(-r|-w|-v) &lt;file&gt;] [(-l &lt;layoutfile&gt;|--ifd) [-i &lt;imagename&gt;]...] [-n] [-N] [-f]]
+[-V[V[V]]] [-o &lt;logfile&gt;]
+
+ -h | --help                        print this help text
+ -R | --version                     print version (release)
+ -r | --read &lt;file&gt;                 read flash and save to &lt;file&gt;
+ -w | --write &lt;file&gt;                write &lt;file&gt; to flash
+ -v | --verify &lt;file&gt;               verify flash against &lt;file&gt;
+ -E | --erase                       erase flash memory
+ -V | --verbose                     more verbose output
+ -c | --chip &lt;chipname&gt;             probe only for specified flash chip
+ -f | --force                       force specific operations (see man page)
+ -n | --noverify                    don&#39;t auto-verify
+ -N | --noverify-all                verify included regions only (cf. -i)
+ -l | --layout &lt;layoutfile&gt;         read ROM layout from &lt;layoutfile&gt;
+      --ifd                         read layout from an Intel Firmware Descriptor
+ -i | --image &lt;name&gt;                only flash image &lt;name&gt; from flash layout
+ -o | --output &lt;logfile&gt;            log output to &lt;logfile&gt;
+ -L | --list-supported              print supported devices
+ -p | --programmer &lt;name&gt;[:&lt;param&gt;] specify the programmer device. One of
+    internal, dummy, gfxnvidia, drkaiser, satasii, atavia, it8212, ft2232_spi,
+    serprog, buspirate_spi, dediprog, pony_spi, nicintel, nicintel_spi,
+    nicintel_eeprom, ogp_spi, linux_spi, usbblaster_spi, pickit2_spi,
+    ch341a_spi.
+
+You can specify one of -h, -R, -L, -E, -r, -w, -v or no operation.
+If no operation is specified, flashrom will only probe for flash chips.</code></pre>
+</body>
+</html>
+
+{% endblock %}

@@ -1,0 +1,11 @@
+[Unit]
+Description=File Browser Service
+
+[Service]
+User=root
+WorkingDirectory=/home/pi/pifex/pifex-sw-hhb/vssweb/
+ExecStart=python3 -m http.server -d /home/pi/pifex/pifex-sw-hhb/vssweb/ 80
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

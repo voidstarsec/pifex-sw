@@ -1,0 +1,58 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>binwalk</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h5 id="binwalk">Binwalk</h5>
+<p>Binwalk is a fast, easy to use tool for analyzing, reverse engineering, and extracting firmware images.</p>
+<p>Binwalk can be used for understanding binary blobs and firmare images</p>
+<h4 id="scanning-firmware">Scanning Firmware</h4>
+<p>The primary - and by far the most popular - feature of binwalk is its signature scanning.</p>
+<p>Binwalk can scan a firmware image for many different embedded file types and file systems; just give it a list of files to scan</p>
+<pre><code>$ binwalk firmware.bin
+DECIMAL     HEX         DESCRIPTION
+0           0x0         DLOB firmware header, boot partition: &quot;dev=/dev/mtdblock/2&quot;
+112         0x70        LZMA compressed data, properties: 0x5D, dictionary size: 33554432 bytes, uncompressed size: 3797616 bytes
+1310832     0x140070    PackImg section delimiter tag, little endian size: 13644032 bytes; big endian size: 3264512 bytes
+1310864     0x140090    Squashfs filesystem, little endian, version 4.0, compression:lzma, size: 3264162 bytes,  1866 inodes, blocksize: 65536 bytes, created: Tue Apr  3 04:12:22 2012</code></pre>
+<h4 id="file-extraction">File Extraction</h4>
+<p>You can tell binwalk to extract any files that it finds in the firmware image with the <code>-e</code> option:</p>
+<pre><code>$ binwalk -e firmware.bin</code></pre>
+<p>Binwalk will even recursively scan files as it extracts them if you also specify the <code>-M</code> option:</p>
+<pre><code>$ binwalk -Me firmware.bin</code></pre>
+<p>And if the <code>-r</code> option is specified, any file signatures that couldn’t be extracted - or that resulted in 0-size files - will be automatically deleted:</p>
+<pre><code>$ binwalk -Mre firmware.bin</code></pre>
+<p>To extract one specific signature type, specify one or more [[-D type|Usage#-d—ddtypeextcmd]] options:</p>
+<pre><code>$ binwalk -D &#39;png image:png&#39; firmware.bin</code></pre>
+<h4 id="entropy-analysis">Entropy Analysis</h4>
+<p>What happens if binwalk doesn’t report any signatures? Or, how do you know binwalk didn’t miss anything interesting?</p>
+<p>Entropy analysis can help identify interesting sections of data inside a firmware image:</p>
+<pre><code>$ binwalk -E firmware.bin</code></pre>
+<figure>
+<img src="https://user-images.githubusercontent.com/34044521/61085404-2cca8000-a3fe-11e9-9555-98b258c9e249.png?s=100" alt="Entropy analysis" /><figcaption>Entropy analysis</figcaption>
+</figure>
+<p><strong>HINT:</strong> You can combine other scans with the entropy scan. For example, you can combine a signature scan with an entropy scan:</p>
+<pre><code>$ binwalk -B -E firmware.bin
+
+DECIMAL     HEX         DESCRIPTION
+36625       0x8F11      Zlib header, default compression</code></pre>
+</body>
+</html>
+
+{% endblock %}

@@ -1,0 +1,99 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>i2c</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h4 id="i2c">I2C</h4>
+<h5 id="protocol-overview">Protocol Overview</h5>
+<p>I2C uses two lines for communication Serial Data (SDA) and Clock (SCL). I2C is similar to SPI in that is synchronous, with the sampling being based on the SCL signal. One benefit of I2C is the ability to address certain chips on the bus within the I2C message frame. A brief overview of the message structure can be seen below:</p>
+<hr />
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 14%" />
+<col style="width: 7%" />
+<col style="width: 8%" />
+<col style="width: 11%" />
+<col style="width: 8%" />
+<col style="width: 13%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Start Condition</th>
+<th>Address Frame</th>
+<th>R/W Bit</th>
+<th>ACK/NACK</th>
+<th>Data Frame</th>
+<th>ACK/NACK</th>
+<th>Data Frame 2</th>
+<th>ACK/NACK</th>
+<th>Stop Bit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1 Bit (H-&gt;L Transition)</td>
+<td>7 or 10 bits</td>
+<td>1 bit</td>
+<td>1 bit</td>
+<td>8 bits</td>
+<td>1 bit</td>
+<td>8 bites</td>
+<td>1 bit</td>
+<td>1 bit</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>Similar to SPI, I2C separates devices into ‘controllers’ and peripherals’, due to there being only one data line (SDA) - only one device can communicate at a time.</p>
+<p>In order to communicate properly wih an I2C device, the address of the device must be known. The address for an I2C device is often internally controlled and can be modified by asserting IO lines on the chip, this allows for multiple instances of that same chip to be on the same bus but share different addresses! The R/W bit (read / write) is used to determine the type of operation that will be performed on the I2C device. For example you may write to a register of an I2C based sensor in order to configure or initialize it, after that you would read the data from it.</p>
+<p>See the example be low from the Sparkfun I2C tutorial for an additional explanation!</p>
+<ul>
+<li><img src="/img/i2c/packet.png" title="fig:" alt="I2C Diagram" /></li>
+</ul>
+<hr />
+<h5 id="i2c-for-reverse-engineers">I2C For Reverse Engineers</h5>
+<ul>
+<li>I2C typically utilizes ‘open drain’ lines - so when the lines are not in use they are held high be a pullup resistor</li>
+<li>i2cdetect can be used to detect what parameters are present on an i2c bus
+<ul>
+<li><code>i2cdetect -y BUS_NUM</code> where <code>BUS_NUM</code> is 0/1 on the RPi depending on how you have it configured</li>
+</ul></li>
+<li>Anyone can act as a I2C controller on the bus as long as you are not interrupting other communications, making in circuit analysis much easier than something like SPI where there may be contention for signal lines.</li>
+</ul>
+<h5 id="i2c-tools">I2C Tools</h5>
+<ul>
+<li><code>i2cdetect</code></li>
+<li><code>i2cdump</code></li>
+<li><code>i2cget</code></li>
+<li><code>i2cset</code></li>
+<li><code>i2ctransfer</code></li>
+</ul>
+<h5 id="common-usages">Common Usages</h5>
+<ul>
+<li>Sensors</li>
+<li>Flash devices</li>
+<li>IPC</li>
+</ul>
+</body>
+</html>
+
+{% endblock %}

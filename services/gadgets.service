@@ -2,9 +2,9 @@
 Description=GadgetFS Configuration Script
 
 [Service]
-User=pi
-WorkingDirectory=/home/pi/pifex/pifex-sw/gadgets/
-ExecStart=/home/pi/pifex/pifex-sw/gadgets/ethernet-configfs.sh
+User=root
+WorkingDirectory=/home/pi/pifex/pifex-sw-hhb/gadgets/
+ExecStart=/home/pi/pifex/pifex-sw-hhb/gadgets/ethernet-configfs.sh
 Restart=always
 
 [Install]

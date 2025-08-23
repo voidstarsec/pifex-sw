@@ -1,0 +1,100 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>uart</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h4 id="uart">UART</h4>
+<h4 id="protocol-overview">Protocol Overview</h4>
+<p>UART stands for Universal Asynchronous Receiver Transmitter, this can be used for many things on an embedded system including communicating with other processors, sensor communications and debug access. One of the features of using a UART over something like SPI or I2C is that since it is asynchronous, there is no clock to synchronize the signals being sent between the two. In place of using a clock the transmit line utilizes start and stop bits to outline a data packet. This means that both the transmit and receive line must know the rate at which to read bits off of the wire as they come across, this is referred to as the baud rate. This is essentially the speed of the data being transferred which is typically measured in bits per second.</p>
+<hr />
+<p>A standard UART packet is defined as follows:</p>
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 17%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Location</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0:1</td>
+<td>Start bit</td>
+<td>Used to signify the start of a packet</td>
+</tr>
+<tr class="even">
+<td>1:9</td>
+<td>Data bits</td>
+<td>The data to be send / read, note that data is typically sent with the least significant bit first</td>
+</tr>
+<tr class="odd">
+<td>9:10</td>
+<td>Parity bit</td>
+<td>This bit determines if data has been changed as it went over the wire</td>
+</tr>
+<tr class="even">
+<td>10:12</td>
+<td>Stop bits</td>
+<td>This signifies that the packet has ended</td>
+</tr>
+</tbody>
+</table>
+<table>
+<tbody>
+<tr class="odd">
+<td>* <img src="img/uart/uart3.png" alt="Pinout 1" /></td>
+</tr>
+</tbody>
+</table>
+<h4 id="uart-for-reverse-engineers">UART For Reverse Engineers</h4>
+<ul>
+<li>Look for fluctuating voltages with your multimeter when looking for UART devices</li>
+<li>The Tx line is typically held high by whoever is driving it</li>
+<li>The <code>screen</code> utility can be used to interract with serial consoles
+<ul>
+<li><code>sudo screen /path/to/device BAUDRATE</code></li>
+<li><code>sudo screen /dev/ttyUSB0 115200</code></li>
+</ul></li>
+<li>Always make sure to check the logic levels of the UART device that you are communicating with <em>and</em> your target device</li>
+<li>It is common for resistors and connectors to be removed before going into production, be sure to trace back your debug headers to make sure that they are properly connected to your target CPU</li>
+</ul>
+<h4 id="uart-tools">UART Tools</h4>
+<ul>
+<li><code>screen</code></li>
+<li><a href="https://help.ubuntu.com/community/Minicom"><code>minicom</code></a></li>
+</ul>
+<h4 id="common-uart-pads">Common UART Pads</h4>
+<ul>
+<li><img src="img/uart/uart1.png" alt="Pinout 1" /></li>
+<li><img src="img/uart/uart2.jpeg" title="fig:" alt="Pinout 1" /></li>
+</ul>
+<h4 id="common-usages">Common Usages</h4>
+<ul>
+<li>Debug console / shell access</li>
+<li>IPC between microcontrollers / processors</li>
+</ul>
+</body>
+</html>
+
+{% endblock %}

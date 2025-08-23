@@ -1,0 +1,11 @@
+[Unit]
+Description=File Browser Service
+
+[Service]
+User=root
+WorkingDirectory=/home/pi/
+ExecStart=/home/pi/pifex-sw-hhb/services/start_filebrowser.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

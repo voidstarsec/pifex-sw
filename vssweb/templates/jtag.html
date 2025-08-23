@@ -1,0 +1,145 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>jtag</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h4 id="jtag">JTAG</h4>
+<h4 id="protocol-overview">Protocol Overview</h4>
+<p>JTAG is a hardware interface that was developed to assist developers and testers with low level debugging. JTAG was originally developed for testing integrated circuits and more specifically, sampling IO pins on a target under test. This type of debugging interface allows engineers to test connections on PCBs without needing the probe the physical pin itself. The JTAG interface is controlled via the state machine outlined below:</p>
+<figure>
+<img src="http://openocd.org/doc-release/doxygen/jtag-state-machine-large.png" alt="JTAG State Machine" /><figcaption>JTAG State Machine</figcaption>
+</figure>
+<p>One of the important things to remember about JTAG at this level is that it involves two registers, the instruction register, and the data register. To utilize these registers, the proper states in the above state machine must be entered using the following interface signals:</p>
+<table>
+<colgroup>
+<col style="width: 44%" />
+<col style="width: 55%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Line</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>TMS</td>
+<td>This pin is used to navigate and control the JTAG state machine</td>
+</tr>
+<tr class="even">
+<td>TDI</td>
+<td>Input pin, used to write data to the target</td>
+</tr>
+<tr class="odd">
+<td>TDO</td>
+<td>Output pin, Used to read data back out from the target</td>
+</tr>
+<tr class="even">
+<td>TCK</td>
+<td>Used to determine when data is sampled for all inputs and outputs</td>
+</tr>
+<tr class="odd">
+<td>TRST (Optional)</td>
+<td>This pin can be used to reset the state machine to the starting state</td>
+</tr>
+</tbody>
+</table>
+<p>The state machine is navigated using the TMS and TCK lines, while data is written to or read from via TDI and TDO respectively. TMS is sampled on the rising edge of TCK, meaning that the TMS line must be asserted before TCK is toggled to navigate through the state machine. Data is then shifted into the instruction register (IR) or data register (DR) depending on the state of the JTAG state machine. When an operation is completed (or after the update DR/IR phase) the resulting data can be <em>shifted</em> out of DR by entering the <code>Shift-DR</code> state. With these primitives in place, manufacturers can implement whatever features they wish over JTAG.</p>
+<p>The JTAG standard treats IR and DR as shift registers, and due to this, multiple targets can be daisy-chained together.</p>
+<figure>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Jtag_chain.svg/654px-Jtag_chain.svg.png" alt="JTAG Daisy Chain" /><figcaption>JTAG Daisy Chain</figcaption>
+</figure>
+<p>In a nutshell, JTAG defines a state machine that is navigated with a minimum of 4 signals. With this state machine in place, end users can write and read from two shift registers, IR and DR.</p>
+<h5 id="jtag-registers">JTAG Registers</h5>
+<p>JTAG utilizes two main registers, the instruction register, and the data register. The instruction register is used to determine what function the JTAG controller is about to carry out such as a memory read, or memory write for example. The data register is then used as an additional input to the instruction register, for the previous example, they may be used to provide an address to read from or write to. These registers can vary in size based on their function.</p>
+<p>To write to a register one would perform the following steps, we’ll use the IR as an example:</p>
+<ol type="1">
+<li>Enter <code>Test Logic Reset</code> state (TLR) (This can be done by asserting the <code>TMS</code> line and cycling <code>CLK</code> 5 times)</li>
+<li>Enter <code>Select IR Scan</code> state</li>
+<li>Enter <code>Capture IR</code> state</li>
+<li>Enter <code>Shift IR</code> – This is where we load the data into IR from TDI</li>
+<li>Enter <code>Exit IR</code> state</li>
+<li>Enter <code>Update IR</code> state – This stage “latches” the value into IR.</li>
+</ol>
+<p>Following this, if there were no data registers required, the operation would be performed, and the result (if any) would be loaded into the data register to be shifted out. However, many instructions require a data register to be filled out as well before operating. In that case, once the data register is written to and updated, the operation will be performed and the result can be shifted out of the data register.</p>
+<p>Some instructions do not require the DR to be loaded, for example, if we had loaded the <code>IDCODE</code> instruction into IR (1110b), this would load the processor’s IDCODE value into the data register for us to then clock out and read it on <code>TDO</code>. To read the result out of <code>TDO</code>, one would navigate to the <code>Shift-DR</code> state, and clock in 32 bits on <code>TDI</code>, this would cause the data in the data register to be shifted out on the <code>TDO</code> line. See the image below for a visual representation of what would happen if one loaded the IR with the <code>IDCODE</code> instruction</p>
+<figure>
+<img src="https://www.embecosm.com/appnotes/ean5/images/jtag-architecture-2.png" alt="IDCODE Instruction" /><figcaption>IDCODE Instruction</figcaption>
+</figure>
+<p>It’s important to remember, that <code>IR</code> and <code>DR</code> can be thought of as shift registers, meaning that when we update them with new values, the old values are then shifted out on <code>TDO</code>.</p>
+<p>The JTAG standard defines the following instruction registers:</p>
+<ul>
+<li><code>BYPASS</code>
+<ul>
+<li>This instruction connects <code>TDI</code> and <code>TDO</code></li>
+<li>In the <code>Shift DR</code> state, data is transferred from <code>TDI</code> to <code>TDO</code> with a delay of one <code>TCK</code> cycle</li>
+<li>0 is loaded into the data register during the <code>Capture DR</code> state</li>
+<li>This can be used to determine how many devices are in a scan chain</li>
+</ul></li>
+<li><code>IDCODE</code>
+<ul>
+<li>When loaded the Device Code Id Register is selected as the serial path between TDI and TDO</li>
+<li>In the Capture-DR state, the 32-bit device ID code is loaded into this shift section</li>
+<li>In the Shift-DR state, this data is shifted out, least significant bit first</li>
+</ul></li>
+<li><strong>Core JTAG Concepts</strong>
+<ul>
+<li>The state machine is navigated with 4 signals: <code>TCK</code>,<code>TMS</code>,<code>TDO</code> and <code>TDI</code></li>
+<li><code>TDI</code> is used to provide input, <code>TDO</code> is used for output</li>
+<li>Using this state machine data can be shifted into the IR (<code>Shift IR</code>) and the DR (<code>Shift DR</code>)</li>
+<li>The instruction register (<code>IR</code>) can be thought of as a function, and the data register (<code>DR</code>) can be considered the argument to that function</li>
+<li>As data is shifted into <code>DR</code> and <code>IR</code>, the previous contents are shifted out on <code>TDO</code></li>
+<li>Once data is shifted into these registers, an operation can be performed (entirely dependent on host implementation aside from a few reserved instructions)</li>
+<li>Data is <em>read</em> out of the target by shifting it onto <code>TDO</code> from the data register in the <code>Shift DR</code> state.</li>
+</ul></li>
+</ul>
+<h4 id="jtag-for-reverse-engineers">JTAG for Reverse Engineers</h4>
+<p>It’s extremely important to have a solid understanding of the protocol fundamentals when approaching something like this from a reverse engineer’s perspective. When reverse engineering hardware (or software) you want to have your ground truth covered since there are always infinite unknowns. These next few sections will go over how we can take advantage of our low-level knowledge of these protocols to assist us on our path to gaining access to hardware level debugging via JTAG. The first thing that we need to do is determine the pinout, and if the pins exposed allow access to the JTAG interface.</p>
+<h5 id="determining-the-pinout">Determining the pinout</h5>
+<p>JTAG signal lines are often grouped together, sometimes (if you’re extremely lucky!) you will see one of the following headers:</p>
+<figure>
+<img src="https://elinux.org/images/4/48/Ti_arm_jtag.jpg" alt="JTAG Headers" /><figcaption>JTAG Headers</figcaption>
+</figure>
+<p>If you find something like this however, it may not have the exact signal groupings, so we will discuss how to determine a pinout if one assumes it’s used for JTAG.</p>
+<p>When reverse engineering something like this, you want to start with what you know. Since we know that most manufacturers at <em>least</em> implement <code>IDCODE</code> and <code>BYPASS</code> let’s talk about how we can take advantage of those two instructions.</p>
+<p>If you have identified what you believe to be a potential JTAG header or pinout, but do not know the pins, we can use the behavior of these two registers to determine the pinout.</p>
+<p>Since the <code>IDCODE</code> register is typically loaded as the default IR, one can test an assumed pinout by doing the following:</p>
+<ol type="1">
+<li>Assign roles to potential output pins (TMS, TCK, etc)</li>
+<li>Enter the <code>Test Logic Reset</code> state</li>
+<li>Enter the <code>Select DR Scan</code>, <code>Capture DR</code>, <code>Shift DR</code></li>
+<li>Clock 32 values on <code>TDI</code> and monitor <code>TDO</code> for a valid <code>IDCODE</code> value</li>
+<li>Check the <code>IDCODE</code> value that you shifted out if it looks valid congratulations! Otherwise, reassign pins and repeat!</li>
+</ol>
+<p>In addition to taking advantage of the fact that the <code>IDCODE</code> register is often loaded into the IR by default, we can also utilize the fact that both the IR and DR behave as shift registers, so if we assume a common register length (32 bits often works) we can attempt to brute force the pinout by doing the following:</p>
+<ol type="1">
+<li>Assign roles to potential output pins (TMS, TCK,etc)</li>
+<li>Using these assumed values, enter the <code>Test Logic Reset</code> state</li>
+<li>Enter the <code>Shift IR</code> state</li>
+<li>Shift in a unique 32-bit value on <code>TDI</code></li>
+<li>Continue to shift 1’s on <code>TDI</code> while monitoring for your unique pattern on TDO (be sure to do this as lease 32 times!).</li>
+<li>If the pattern is discovered, congratulations! Otherwise, choose new assignments for the pins and repeat!</li>
+</ol>
+<p>Both of these methods are used by the previously mentioned <a href="https://github.com/cyphunk/JTAGenum/blob/master/JTAGenum.sh">JTAGEnum</a> script, as well as the <a href="http://www.grandideastudio.com/jtagulator/">JTAGULATOR</a>.</p>
+<h5 id="determining-instruction-length">Determining Instruction Length</h5>
+<p>Once you have determined the pinout of the target, then the real fun can begin. The next step is to then determine the length of the IR / DR. To do this, starting with IR, enter the <code>Shift IR</code> state and flood the chain with 1’s on <code>TDI</code>, using a large number like 1024 or 4096, and then clock in a 0. Once this has been done, simply continue to clock in 1’s on <code>TDI</code>, counting the number of clock cycles that it takes before a 0 appears on <code>TDO</code>. This will tell you the length of the IR. Once you have that, you can enter the <code>Shift DR</code> state and repeat the process to determine the state of the DR. This is something that <a href="http://urjtag.org/">urjtag</a> does very well.</p>
+</body>
+</html>
+
+{% endblock %}

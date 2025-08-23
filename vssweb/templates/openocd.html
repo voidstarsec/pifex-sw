@@ -1,0 +1,147 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>openocd</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h3 id="openocd-arguments">OpenOCD: Arguments</h3>
+<ul>
+<li>OpenOCD can be run with a specified config file:
+<ul>
+<li><code>openocd -f file.cfg</code></li>
+</ul></li>
+<li>Individual commands can also be passed with the <code>-c</code> option
+<ul>
+<li><code>openocd -c &quot;reset halt&quot;</code></li>
+</ul></li>
+<li>Predefined scripts in <code>/usr/local/share/openocd/scripts/</code> can also be provided
+<ul>
+<li><code>openocd -f target/allwinner_v3s.cfg</code></li>
+</ul></li>
+<li>Arguments are run in the order they are provided!</li>
+</ul>
+<h3 id="openocd-config-files">OpenOCD: Config Files</h3>
+<ul>
+<li>A core component of OpenOCD is the config files used for various targets
+<ul>
+<li>Located at <code>/usr/local/share/scripts</code></li>
+</ul></li>
+<li>The config files define every parameter needed for performing hardware level debugging, including:
+<ul>
+<li>Hardware adapter features</li>
+<li>Target CPU features</li>
+<li>TAP/DAP parameters</li>
+</ul></li>
+<li>These files can become very complex
+<ul>
+<li>If you can, base yours off of an existing CPU</li>
+<li>Grep for your CPU id in <code>/usr/local/share/openocd/scripts/</code></li>
+</ul></li>
+</ul>
+<h3 id="openocd-config-files-1">OpenOCD: Config Files</h3>
+<ul>
+<li>Adapter
+<ul>
+<li><code>bcm2835gpio</code> - This specifies the GPIO of the Pi</li>
+<li><code>bcm2835gpio_jtag_nums 25  24  23  22</code> - Specify GPIO pins used</li>
+</ul></li>
+<li>Transport mode (JTAG,SWD,etc)
+<ul>
+<li><code>transport select jtag</code></li>
+</ul></li>
+<li>Adapter speed
+<ul>
+<li><code>adapter speed XXX</code></li>
+</ul></li>
+<li>Tap settings
+<ul>
+<li><code>jtag newtap -irlen X -ircapture X -expected-id X</code></li>
+</ul></li>
+<li>Reset Configuration
+<ul>
+<li><code>reset_config trst_only</code></li>
+</ul></li>
+</ul>
+<h3 id="openocd-example-config">OpenOCD: Example Config</h3>
+<pre><code>source [find target/swj-dp.tcl]
+# This is using the name on the SoC
+if { [info exists CHIPNAME] } {
+  set _CHIPNAME $CHIPNAME
+} else {
+  set _CHIPNAME s4ln045x01
+}
+# This is the TAP ID that we discovered in the previous step
+if { [info exists CPUTAPID] } {
+  set _CPUTAPID $CPUTAPID
+} else {
+  set _CPUTAPID 0x4ba00477
+}
+# Set the speed of our adapter
+adapter_khz 200
+# We are indeed using JTAG
+transport select jtag
+# We don&#39;t have a SRST pin, only TRST it would seem
+reset_config trst_only
+# Here we create the JTAG TAP/DAP, defining the location and characteristics of our DAP
+swj_newdap $_CHIPNAME cpu -irlen 4 -ircapture 0x1 -irmask 0xf -expected-id $_CPUTAPID
+dap create $_CHIPNAME.dap -chain-position $_CHIPNAME.cpu
+target create $_TARGETNAME.1 cortex_r4 -endian $_ENDIAN -dap $_CHIPNAME.dap
+set _TARGETNAME $_CHIPNAME.cpu</code></pre>
+<h3 id="openocd-commands">OpenOCD: Commands</h3>
+<ul>
+<li><code>md[b/h/w] address count</code> - Memory display byte/halfword/word</li>
+<li><code>halt</code> - Halt the CPU (this is needed in order to read mem)</li>
+<li><code>step</code> - step to the next instruction</li>
+<li><code>info reg</code> - Display the current register state</li>
+</ul>
+<h3 id="openocd-taps-and-daps">OpenOCD: TAPs and DAPs</h3>
+<ul>
+<li>When using JTAG with OpenOCD a TAP must be defined to communicate with
+<ul>
+<li><code>jtag newtap ...</code></li>
+<li><code>target create ...</code></li>
+</ul></li>
+<li>SWD requires that a DAP be defined
+<ul>
+<li><code>swj_newdap ...</code></li>
+<li><code>dap create ...</code></li>
+<li><code>target create ...</code></li>
+</ul></li>
+<li>Targets must be provided one of the following arguments to ensure they use the properly DAP/TAP
+<ul>
+<li><code>-chain-position POSITON_NUM</code> - When using JTAG</li>
+<li><code>-dap DAP_NAME</code> - When using SWD</li>
+</ul></li>
+</ul>
+<h3 id="re-tips-openocd-source">RE Tips: OpenOCD Source</h3>
+<ul>
+<li>What can we determine about the part number?
+<ul>
+<li>The OpenOCD source code is your friend here!</li>
+<li>Is this number used anywhere in the source?</li>
+</ul></li>
+</ul>
+<h3 id="openocd-tip-scripts">OpenOCD Tip: Scripts</h3>
+<ul>
+<li><p>If possible, search through the available scripts for <em>any</em> information about your CPU</p></li>
+<li><p>JTAG scan chains are often proprietary or undocumented, leveraging the information available in OpenOCD can be extremely helpful</p></li>
+</ul>
+</body>
+</html>
+
+{% endblock %}

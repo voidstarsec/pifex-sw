@@ -1,0 +1,116 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>urjtag</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h3 id="urjtag">URJTAG</h3>
+<ul>
+<li>UrJTAG is a tool that allows for low level interraction with JTAG controllers
+<ul>
+<li>Developed to assist with boundary scans and SVF replays</li>
+</ul></li>
+<li><p>Originally developed to replace closed source JTAG software</p></li>
+<li><p>Advanced debugging can be achieved with UrJTAG by writing scripts and custom commands</p></li>
+<li>Supports multiple hardware interfaces
+<ul>
+<li>FT2232H</li>
+<li>JLink</li>
+<li>Pi!</li>
+</ul></li>
+</ul>
+<h3 id="urjtag-usage">UrJTAG: Usage</h3>
+<ul>
+<li><p>Launch UrJTAG from the commandline via: <code>sudo jtag</code></p></li>
+<li><p>Define your cable: <code>cable gpio tms=XX tck=X tdo=X tdi=X</code></p></li>
+<li>Use the <code>detect</code> command to enumerate the scan chain!
+<ul>
+<li><code>detect</code></li>
+</ul></li>
+<li>Use the <code>discover</code> command to autodetect IR and DR values!
+<ul>
+<li><code>discover</code></li>
+</ul></li>
+</ul>
+<pre><code>jtag&gt; detect
+IR length: 4
+Chain length: 1
+Device Id: 00010000000001000011010010110001 (0x100434B1)
+  Unknown manufacturer! (01001011000) (/usr/local/share/urjtag/MANUFACTURERS)</code></pre>
+<h3 id="urjtag-defining-registers">UrJtag: Defining Registers</h3>
+<ul>
+<li>Registers can be defined as follows:
+<ul>
+<li><code>register NAME SIZE</code></li>
+</ul></li>
+<li>Defining a 32 bit register for the IDCODE:
+<ul>
+<li><code>register ID_REG 32</code></li>
+</ul></li>
+<li>Each instruction must have a register associated with it
+<ul>
+<li><strong>Remember</strong> IR values are essentially used to select DRs</li>
+</ul></li>
+</ul>
+<h3 id="urjtag-defining-instructions">UrJtag: Defining Instructions</h3>
+<ul>
+<li>Instructions can be defined as follows:
+<ul>
+<li><code>instruction NAME VAL DATA_REG</code></li>
+</ul></li>
+<li>Before defining instructions, the instruction length must be specified
+<ul>
+<li><code>instruction length 4</code></li>
+</ul></li>
+<li>Defining the IDCODE instruction for our target:
+<ul>
+<li><code>instruction ID 1100 ID_REG</code></li>
+</ul></li>
+</ul>
+<h3 id="urjtag-state-machine-navigation">UrJTAG: State Machine Navigation</h3>
+<ul>
+<li><p>The JTAG state machine can be manually navigated using UrJTAG</p></li>
+<li>Load an instruction:
+<ul>
+<li><code>instruction ID</code></li>
+</ul></li>
+<li>Shift the instruction into the IR:
+<ul>
+<li><code>shift ir</code></li>
+</ul></li>
+<li>Shift the value out of the data register
+<ul>
+<li><code>shift dr</code></li>
+</ul></li>
+<li>Print out the shifted value:
+<ul>
+<li><code>dr</code></li>
+</ul></li>
+</ul>
+<pre><code>jtag&gt; instruction ID
+jtag&gt; shift ir
+jtag&gt; dr
+00000000000000000000000000000000 (0x00000000)
+jtag&gt; shift dr
+jtag&gt; dr
+00010000000001000011010010110001 (0x100434B1)
+jtag&gt; </code></pre>
+</body>
+</html>
+
+{% endblock %}

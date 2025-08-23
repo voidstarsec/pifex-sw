@@ -1,0 +1,84 @@
+
+{% extends "base.html" %}
+{% block heading %}
+
+{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>spi</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h4 id="spi">SPI</h4>
+<p>The Serial Peripheral Interface (SPI) is a synchronous serial communication interface specification used for short-distance communication, primarily in embedded systems</p>
+<p>SPI separates devices into ‘controllers’ and ‘peripherals’. A controller/host can select a peripheral and manages the timing for all of the data transfers.</p>
+<p>The SPI bus requires 4 pins</p>
+<table>
+<colgroup>
+<col style="width: 37%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pin</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CS (Chip Select)</td>
+<td>Used to select the appropriate device on the SPI bus that the host wishes to communicate with</td>
+</tr>
+<tr class="even">
+<td>CLK (Clock)</td>
+<td>Clock signal that is host generated, data is sampled on the <strong>Rising</strong> edge of the clock</td>
+</tr>
+<tr class="odd">
+<td>COPI/MOSI/DO (Data Out (from controller))</td>
+<td>This line is used to send data to the target device from the host devices, we will issue commands through this line</td>
+</tr>
+<tr class="even">
+<td>CPIO/MISO/DI (Data in (peripheral))</td>
+<td>Responses from the target device will be sent over this line</td>
+</tr>
+</tbody>
+</table>
+<p>In order to access a SPI device, the following sequence occurs:</p>
+<ol type="1">
+<li>The host will pull the CS line low, this alerts the target that the host wishes to communicate</li>
+<li>The host will then provide a clock signal to the target device</li>
+<li>The host provides an instruction over the MOSI line (this varies based on the operation you wish to perform)</li>
+<li>The host continues to provide a clock signal while waiting for a response on the MISO line.</li>
+</ol>
+<h4 id="spi-for-reverse-engineers">SPI For Reverse Engineers</h4>
+<ul>
+<li>SPI Flash devices can be properly read out in circuit (aka without removing them)</li>
+<li><a href="flashrom.html">flashrom</a> can be used to extract data from many SPI flash devices</li>
+<li>If in circuit reading is not possible, traffic can be analyzed and reconstructed using the Salaea Logic Analyer</li>
+</ul>
+<h4 id="common-usages">Common Usages</h4>
+<p>SPI is used to talk to a variety of peripherals, such as</p>
+<ul>
+<li>Sensors: temperature, pressure, ADC, touchscreens, video game controllers</li>
+<li>Control devices: audio codecs, digital potentiometers, DAC</li>
+<li>Camera lenses: Canon EF lens mount</li>
+<li>Communications: Ethernet, USB, USART, CAN, IEEE 802.15.4, IEEE 802.11, handheld video games</li>
+<li>Memory: flash and EEPROM</li>
+<li>Real-time clocks</li>
+<li>LCD, sometimes even for managing image data</li>
+<li>Any MMC or SD card (including SDIO variant[6])</li>
+</ul>
+</body>
+</html>
+
+{% endblock %}

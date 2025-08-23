@@ -3,8 +3,8 @@ Description=Jupyter Notebook Startup
 
 [Service]
 User=pi
-WorkingDirectory=/home/pi/pifex/pifex-sw/notebooks/
-ExecStart=/home/pi/pifex/pifex-sw/services/start_jupyter.sh
+WorkingDirectory=/home/pi/pifex/pifex-sw-hhb/notebooks/
+ExecStart=/home/pi/pifex/pifex-sw-hhb/services/start_jupyter.sh
 Restart=always
 
 [Install]
